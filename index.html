@@ -14,7 +14,7 @@
 <title>習慣クエスト</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&family=Dela+Gothic+One&display=swap" rel="stylesheet">
 <style>
 /* VOICE: 静かで上質。数字は正確に、言葉は短く前向きに
    IDEA: 自分というキャラクターを66日で育てる、本格RPGのステータス画面
@@ -208,6 +208,12 @@ h2 small{font:500 13px "Noto Sans JP";color:var(--mute)}
 .pips i.on{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px #f5c45166}
 .brief{position:fixed;inset:0;z-index:78;background:radial-gradient(120% 70% at 50% 0%,#101c3a,var(--bg) 70%);overflow-y:auto}
 .brief[hidden]{display:none}
+.wba{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:14px;border-radius:14px;background:var(--card2);border:1px solid var(--line)}
+.wba small{display:block;color:var(--mute);font-size:12px}.wba b{font:400 32px/1.1 "Dela Gothic One","Inter",sans-serif}.wba .arr{color:var(--mute)}
+.wbd{margin:8px 2px 0;font-size:13px;font-weight:700}
+body.blaze #dayn,body.blaze .dnum b,body.blaze .lvbig,body.blaze .igclock,body.blaze .s66h b,body.blaze .bday,body.blaze #lv,body.blaze .icenter b{font-family:"Dela Gothic One","Inter",sans-serif;font-weight:400;letter-spacing:.01em}
+body.blaze .stats4 b,body.blaze #stats4 b{font-family:"Dela Gothic One","Inter",sans-serif;font-weight:400}
+.gd{color:#4ade80;font-size:11px;margin-left:4px;font-family:"Inter",sans-serif;font-weight:800}
 .brief.ign{background:radial-gradient(130% 60% at 50% 105%,#f97316 0%,#be123c 22%,#3b0a3a 48%,#070b16 78%)}
 .ignk{font:900 13px/1 "Inter",sans-serif;letter-spacing:.32em;color:#fdba74;margin-top:10px}
 .igclock{font:900 clamp(56px,19vw,84px)/1 "Inter",sans-serif;letter-spacing:-.02em;background:linear-gradient(180deg,#fff,#fed7aa);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 40px #f9731655}
@@ -1011,7 +1017,8 @@ input:focus,select:focus,textarea:focus{border-color:#6d5cf0}
   <!-- 成長 -->
   <section class="view" id="v-growth" hidden>
     <h2 style="margin-top:4px">ビフォー／アフター</h2>
-    <div class="panel"><div class="ba" id="ba"></div></div>
+    <div class="panel"><div class="ba" id="ba"></div>
+      <h3 class="subh" style="margin:16px 0 8px">起床時刻のビフォーアフター</h3><div id="wakeba"></div></div>
     <h2>能力値</h2>
     <div class="panel" id="statpanel"></div>
     <h2>今週の振り返り <small id="wksub"></small></h2>
@@ -1807,7 +1814,13 @@ function renderBA(){
   const col1=`<div class="col"><div class="hd">Day 1</div><div class="sc">${base}</div><div style="font-size:12px;color:var(--mute);margin-bottom:6px">ライフスコア・Lv.1</div>${SK.map(k=>`<div class="ln"><span>${STATS[k]}</span><b>${statBase(k)}</b></div>`).join('')}</div>`;
   const col2=`<div class="col now"><div class="hd">Day ${Math.max(1,dayNum())}（いま）</div><div class="sc">${now}</div><div style="font-size:12px;color:var(--mute);margin-bottom:6px">ライフスコア・Lv.${lv}</div>${SK.map(k=>{const d=statNow(k)-statBase(k);return `<div class="ln"><span>${STATS[k]}</span><b>${statNow(k)}${d>0?`<small style="color:var(--mint);font-size:11px"> +${d}</small>`:''}</b></div>`}).join('')}</div>`;
   $('ba').innerHTML=col1+'<div class="arr">→</div>'+col2;
+  const wb=$('wakeba');if(wb)wb.innerHTML=wakeBA();
 }
+/* 起床時刻のビフォーアフター（朝の起動の記録から） */
+function wakeBA(){const ks=Object.keys(S.ign||{}).sort();if(ks.length<2)return '<p class="note" style="margin:0">朝の起動を2日以上記録すると、起床時刻の変化が表示されます。</p>';
+  const mm=k=>{const[h,m]=S.ign[k].t.split(':').map(Number);return h*60+m},n=Math.min(3,Math.floor(ks.length/2)),av=a=>Math.round(a.reduce((x,k)=>x+mm(k),0)/a.length);
+  const b=av(ks.slice(0,n)),c=av(ks.slice(-n)),d=b-c,f=v=>Math.floor(v/60)+':'+String(v%60).padStart(2,'0');
+  return `<div class="wba"><div><small>はじめ（最初の${n}日）</small><b>${f(b)}</b></div><div class="arr">→</div><div><small>いま（直近${n}日）</small><b>${f(c)}</b></div></div><p class="wbd" style="color:${d>0?'#4ade80':d<0?'#fb7185':'var(--mute)'}">${d>0?d+'分 早起きになった':d<0?(-d)+'分 遅くなっている。明日の朝で取り返そう':'変化なし'}・早起き達成 ${ks.filter(k=>S.ign[k].early).length}/${ks.length}日</p>`}
 function renderWeek(){
   const w=week(),ws=addDays(S.start,w*7),days=Math.min(7,diffDays(ws,cur)+1),qs=todays().filter(q=>!q.orphan);
   const rate=(from,n)=>{let done=0;for(let i=0;i<n;i++)done+=entries(S.log[addDays(from,i)]).length;return qs.length?Math.min(100,Math.round(done/(qs.length*n)*100)):0};
@@ -2130,7 +2143,7 @@ function renderHero(){
   $('title').textContent=titleOf(lv)+(nx?'・次のランクまで Lv.'+nx[0]:'');
   $('into').innerHTML=`${lvInto(t)}<span> / ${lvNeed(lv)} XP</span>`;
   const mx=Math.max(30,...SK.map(statNow)),SC={dis:'#818cf8',foc:'#c084fc',str:'#fb923c',wis:'#39ff9a'};
-  $('stats4').innerHTML=SK.map(k=>`<div style="--sc:${SC[k]}"><div class="sl"><span>${STATS[k]}</span><b>${statNow(k)}</b></div><div class="sb"><i style="width:${statNow(k)/mx*100}%"></i></div></div>`).join('');
+  $('stats4').innerHTML=SK.map(k=>`<div style="--sc:${SC[k]}"><div class="sl"><span>${STATS[k]}</span><b>${statNow(k)}${statNow(k)>statBase(k)?`<small class="gd">▲${statNow(k)-statBase(k)}</small>`:''}</b></div><div class="sb"><i style="width:${statNow(k)/mx*100}%"></i></div></div>`).join('');
   $('coins').textContent=coinsNow();
   $('avsmall').innerHTML=myAvatar('h');
 }
@@ -2908,82 +2921,82 @@ const HAIRN=['ショート','ボブ','ロング','ツンツン'],SKINN=['明る�
 const STAGES=['旅立ちの装い','革の鎧','マントの冒険者','輝く装備','王冠の英雄','光翼の伝説'];
 const tierOf=lv=>Math.max(0,RANKM.findIndex((r,i)=>lv>=r[0]&&(i===RANKM.length-1||lv<RANKM[i+1][0])));
 function avatarSVG(o){
+  /* v9.6：大人っぽいアニメ調の胸像。黒のテックウェア＋オレンジのリムライト。ランクで装備とオーラが進化 */
   o=o||{};const t=o.tier??0,L=o.look||{},sk=SKINS[L.skin||0],hc=HAIRC[L.hairc||0],hs=L.hair||0,cl=o.cls||null;
-  const ac=o.color||'#8b5cf6',gold='#f5c451',uid='a'+(o.uid||Math.floor(Math.random()*1e6));
-  const metal=t>=3?`url(#${uid}mt)`:'#64748b',suitA=t===0?'#2a3550':'#1c2440',suitB='#0b1020';
+  const ac=o.color||'#f97316',rim='#ff8a3d',gold='#f5c451',u='h'+(o.uid||Math.floor(Math.random()*1e6));
+  const dk='color-mix(in srgb,'+hc+' 55%,#000)',skd='color-mix(in srgb,'+sk+' 78%,#5a2a1a)';
   let g=`<defs>
-    <radialGradient id="${uid}au" cx=".5" cy=".55" r=".5"><stop offset="0" stop-color="${ac}" stop-opacity=".75"/><stop offset=".55" stop-color="${ac}" stop-opacity=".22"/><stop offset="1" stop-color="${ac}" stop-opacity="0"/></radialGradient>
-    <linearGradient id="${uid}su" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${suitA}"/><stop offset="1" stop-color="${suitB}"/></linearGradient>
-    <linearGradient id="${uid}mt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8fafc"/><stop offset=".45" stop-color="#cbd5e1"/><stop offset="1" stop-color="#475569"/></linearGradient>
-    <linearGradient id="${uid}bl" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#94a3b8"/><stop offset=".5" stop-color="#f8fafc"/><stop offset="1" stop-color="${t>=3?ac:'#cbd5e1'}"/></linearGradient>
-    <linearGradient id="${uid}cp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="color-mix(in srgb,${ac} 80%,#000)"/><stop offset="1" stop-color="#07070f"/></linearGradient>
-    <linearGradient id="${uid}hr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="color-mix(in srgb,${hc} 75%,#fff)"/><stop offset=".5" stop-color="${hc}"/><stop offset="1" stop-color="color-mix(in srgb,${hc} 55%,#000)"/></linearGradient>
-    <filter id="${uid}gw" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter></defs>`;
-  /* 背景のオーラと光 */
-  if(t>=1)g+=`<ellipse cx="60" cy="92" rx="${40+t*4}" ry="${54+t*3}" fill="url(#${uid}au)" opacity="${.35+t*.12}"><animate attributeName="opacity" values="${.3+t*.1};${.55+t*.09};${.3+t*.1}" dur="3.2s" repeatCount="indefinite"/></ellipse>`;
-  if(t>=4)g+=`<g stroke="${t>=5?'#fff7d6':gold}" stroke-width="1.4" opacity=".55">${Array.from({length:12},(_,i)=>{const a=i/12*Math.PI*2;return `<line x1="${60+Math.cos(a)*30}" y1="${80+Math.sin(a)*30}" x2="${60+Math.cos(a)*58}" y2="${80+Math.sin(a)*58}"/>`}).join('')}</g>`;
-  /* 光の翼 */
-  if(t>=5)g+=`<g opacity=".92">${[0,1,2,3].map(i=>`<path d="M52 84 Q${30-i*6} ${58-i*10} ${4+i*2} ${46-i*6} Q${22-i*3} ${66-i*4} ${14+i*4} ${80+i*4} Q${30} ${82+i*2} 50 ${92}Z" fill="${i%2?'#fff7d6':'#bae6fd'}" opacity="${.85-i*.15}"/><path d="M68 84 Q${90+i*6} ${58-i*10} ${116-i*2} ${46-i*6} Q${98+i*3} ${66-i*4} ${106-i*4} ${80+i*4} Q90 ${82+i*2} 70 92Z" fill="${i%2?'#fff7d6':'#bae6fd'}" opacity="${.85-i*.15}"/>`).join('')}</g>`;
-  g+=`<ellipse cx="60" cy="153" rx="34" ry="5" fill="#000" opacity=".55"/>`;
-  /* なびくマフラー（全段階） */
-  g+=`<path d="M50 74 Q34 70 18 78 Q8 82 2 78 Q8 88 20 88 Q12 94 6 96 Q22 98 34 88 Q44 84 54 82Z" fill="${ac}"/><path d="M50 78 Q36 78 24 86 Q34 86 52 82Z" fill="#000" opacity=".3"/>`;
-  /* マント */
-  if(t>=2)g+=`<path d="M41 78 Q26 108 16 150 Q30 144 42 150 Q52 142 60 148 Q72 142 80 150 Q92 144 104 150 Q94 108 79 78Z" fill="url(#${uid}cp)"/><path d="M41 78 Q30 110 24 146" stroke="${t>=4?gold:ac}" stroke-width="1.6" fill="none" opacity=".8"/><path d="M79 78 Q90 110 96 146" stroke="${t>=4?gold:ac}" stroke-width="1.6" fill="none" opacity=".8"/>`;
-  if(hs===2)g+=`<path d="M76 34 Q104 40 100 86 Q96 70 86 62 Q90 74 84 92 Q80 66 74 50Z" fill="url(#${uid}hr)"/>`;
-  /* 脚（踏ん張った構え） */
-  g+=`<path d="M53 112 L46 146" stroke="url(#${uid}su)" stroke-width="10" stroke-linecap="round"/><path d="M67 112 L76 146" stroke="url(#${uid}su)" stroke-width="10" stroke-linecap="round"/>
-    <path d="M38 141 L52 140 L52 150 L36 150Q34 146 38 141Z" fill="${t>=3?metal:'#3b2416'}"/><path d="M70 140 L84 141 Q88 146 86 150 L70 150Z" fill="${t>=3?metal:'#3b2416'}"/>`;
-  if(t>=3)g+=`<path d="M45 126 L51 125 L49 138 L43 138Z M71 125 L77 126 L79 138 L73 138Z" fill="${metal}"/>`;
-  /* 胴体 */
-  g+=`<path d="M40 78 Q60 70 80 78 L82 100 L76 116 L44 116 L38 100Z" fill="url(#${uid}su)"/>
-    <path d="M60 78 L60 114 M46 96 L56 110 M74 96 L64 110" stroke="${ac}" stroke-width="1.3" opacity=".85" fill="none"/>`;
-  if(t>=1)g+=`<path d="M44 80 Q60 75 76 80 L75 98 Q60 104 45 98Z" fill="${t>=3?metal:'#6b3f22'}"/><path d="M47 83 Q60 79 73 83" stroke="${t>=4?gold:t>=3?ac:'#a16207'}" stroke-width="1.8" fill="none"/>`;
-  if(t>=3)g+=`<path d="M60 82 L64 89 L60 96 L56 89Z" fill="${ac}"/><path d="M60 82 L64 89 L60 96 L56 89Z" fill="${ac}" filter="url(#${uid}gw)"/>`;
-  if(t>=4)g+=`<path d="M44 80 Q60 75 76 80 L75 98 Q60 104 45 98Z" fill="none" stroke="${gold}" stroke-width="1.5"/>`;
-  g+=`<path d="M40 104 L80 104 L79 110 L41 110Z" fill="#1a1208"/><rect x="55" y="103" width="10" height="8" rx="1.5" fill="${gold}"/><rect x="58" y="105" width="4" height="4" fill="${ac}"/>`;
-  /* 肩 */
-  const sh=t>=3?metal:'#6b3f22';
-  if(t>=1)g+=`<path d="M74 76 Q90 74 92 88 Q84 84 76 86Z" fill="${sh}"/>${t>=4?`<path d="M74 76 Q90 74 92 88" stroke="${gold}" stroke-width="1.5" fill="none"/>`:''}`;
-  if(t>=3)g+=`<path d="M46 76 Q30 74 28 88 Q36 84 44 86Z" fill="${sh}"/>${t>=4?`<path d="M46 76 Q30 74 28 88" stroke="${gold}" stroke-width="1.5" fill="none"/>`:''}`;
-  /* 腕と拳 */
-  g+=`<path d="M41 82 Q30 94 32 108" stroke="url(#${uid}su)" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M79 82 Q92 92 90 106" stroke="url(#${uid}su)" stroke-width="9" stroke-linecap="round" fill="none"/>`;
-  const glv=t>=3?metal:'#3b2416';
-  g+=`<rect x="27" y="103" width="10" height="9" rx="3" fill="${glv}"/><rect x="85" y="101" width="10" height="9" rx="3" fill="${glv}"/>`;
-  /* 職業ごとの武器 */
-  const glow=t>=3?`<g filter="url(#${uid}gw)" opacity=".9">`:'<g opacity="0">';
-  const W={
-   warrior:`${glow}<path d="M88 104 L104 ${t>=3?18:30} L109 ${t>=3?16:28} L106 ${t>=3?23:35} L94 106Z" fill="${ac}"/></g><path d="M88 104 L104 ${t>=3?18:30} L109 ${t>=3?16:28} L106 ${t>=3?23:35} L94 106Z" fill="url(#${uid}bl)"/><path d="M96 98 L105 ${t>=3?24:36}" stroke="#fff" stroke-width=".8" opacity=".7"/><path d="M82 102 L100 108" stroke="${gold}" stroke-width="4" stroke-linecap="round"/><path d="M89 106 L85 118" stroke="#3b2416" stroke-width="4" stroke-linecap="round"/><circle cx="84.5" cy="120" r="2.5" fill="${gold}"/>`,
-   sage:`<line x1="96" y1="${t>=2?20:32}" x2="92" y2="150" stroke="#4a2c14" stroke-width="4" stroke-linecap="round"/><path d="M90 ${t>=2?26:38} Q96 ${t>=2?10:22} 102 ${t>=2?26:38}" stroke="${gold}" stroke-width="2" fill="none"/>${`<circle cx="96" cy="${t>=2?20:32}" r="${8+t*1.5}" fill="#39ff9a" filter="url(#${uid}gw)"/>`}<circle cx="96" cy="${t>=2?20:32}" r="${5+t}" fill="#d1fae5"/><circle cx="96" cy="${t>=2?20:32}" r="${12+t*2}" fill="none" stroke="#39ff9a" stroke-width="1" stroke-dasharray="3 3" opacity=".8"><animateTransform attributeName="transform" type="rotate" from="0 96 ${t>=2?20:32}" to="360 96 ${t>=2?20:32}" dur="8s" repeatCount="indefinite"/></circle>`,
-   monk:`<circle cx="90" cy="106" r="${9+t*1.5}" fill="${ac}" filter="url(#${uid}gw)" opacity=".9"/><circle cx="32" cy="108" r="${7+t*1.2}" fill="${ac}" filter="url(#${uid}gw)" opacity=".7"/>${t>=2?`<path d="M84 96 Q96 86 100 100 Q94 94 88 104Z" fill="#fde68a" opacity=".8"/>`:''}`,
-   guardian:`<path d="M10 84 L38 84 L38 106 Q24 128 10 106Z" fill="${t>=3?metal:'#475569'}" stroke="${t>=4?gold:'#1e293b'}" stroke-width="2.5"/><path d="M24 90 L30 100 L24 114 L18 100Z" fill="${ac}"/>${t>=3?`<path d="M24 90 L30 100 L24 114 L18 100Z" fill="${ac}" filter="url(#${uid}gw)"/>`:''}<path d="M90 104 L98 72 L101 73 L94 106Z" fill="url(#${uid}bl)"/><path d="M86 104 L98 108" stroke="${gold}" stroke-width="3" stroke-linecap="round"/>`,
-   explorer:`<path d="M30 60 Q8 104 30 150" fill="none" stroke="#5b3413" stroke-width="4" stroke-linecap="round"/><line x1="30" y1="60" x2="30" y2="150" stroke="#e2e8f0" stroke-width="1"/><path d="M30 106 L62 100" stroke="#e2e8f0" stroke-width="1.4"/><path d="M62 100 L56 97 L57 103Z" fill="${t>=3?ac:'#e2e8f0'}"/><rect x="80" y="62" width="8" height="26" rx="3" fill="#5b3413" transform="rotate(20 84 75)"/>`};
-  g+=W[cl]||`<path d="M88 104 L100 62 L104 62 L94 106Z" fill="url(#${uid}bl)"/><path d="M84 102 L98 107" stroke="${gold}" stroke-width="3.5" stroke-linecap="round"/><path d="M90 106 L87 116" stroke="#3b2416" stroke-width="3.5" stroke-linecap="round"/>`;
-  /* 首と顔（シャープな輪郭） */
-  g+=`<path d="M54 64 L66 64 L66 76 Q60 79 54 76Z" fill="${sk}"/><path d="M54 70 Q60 74 66 70 L66 76 Q60 79 54 76Z" fill="#000" opacity=".18"/>`;
-  g+=`<path d="M48 70 Q60 77 72 70 L72 77 Q60 83 48 77Z" fill="${ac}"/><path d="M48 74 Q60 80 72 74" stroke="#000" stroke-width="1" opacity=".3" fill="none"/>`;
-  if(hs===2)g+=`<path d="M37 46 Q35 22 60 21 Q85 22 83 46 L84 72 Q78 62 76 50 L44 50 Q42 62 36 72Z" fill="url(#${uid}hr)"/>`;
-  g+=`<path d="M42 44 Q42 28 60 27 Q78 28 78 44 L77 55 Q74 66 60 72 Q46 66 43 55Z" fill="${sk}"/><path d="M60 72 Q74 66 77 55 L78 46 Q76 60 66 66Z" fill="#000" opacity=".14"/>`;
-  /* 目：鋭いアニメ調、虹彩は職業カラー */
-  const irc=t>=5?'#fff7d6':ac;
-  g+=`<path d="M45.5 51 Q51 47.6 57 50.2 Q54.5 55 47.5 54.2Z" fill="#f8fafc"/><path d="M74.5 51 Q69 47.6 63 50.2 Q65.5 55 72.5 54.2Z" fill="#f8fafc"/>
-    <circle cx="52" cy="51.6" r="2.6" fill="${irc}"/><circle cx="68" cy="51.6" r="2.6" fill="${irc}"/>${t>=5?`<circle cx="52" cy="51.6" r="3.4" fill="${irc}" filter="url(#${uid}gw)"/><circle cx="68" cy="51.6" r="3.4" fill="${irc}" filter="url(#${uid}gw)"/>`:''}
-    <circle cx="52.3" cy="51.8" r="1.3" fill="#0b0b14"/><circle cx="67.7" cy="51.8" r="1.3" fill="#0b0b14"/><circle cx="51.2" cy="50.6" r=".8" fill="#fff"/><circle cx="66.8" cy="50.6" r=".8" fill="#fff"/>
-    <path d="M44.8 50.8 Q51 46.4 57.6 49.8" stroke="#120d18" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M75.2 50.8 Q69 46.4 62.4 49.8" stroke="#120d18" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M45 45 L56.5 47.4" stroke="color-mix(in srgb,${hc} 60%,#000)" stroke-width="2.4" stroke-linecap="round"/><path d="M75 45 L63.5 47.4" stroke="color-mix(in srgb,${hc} 60%,#000)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M60.5 55 L59 59.5 L61.2 59.5" stroke="#000" stroke-width=".9" fill="none" opacity=".35"/><path d="M55.5 63.4 Q61 65.6 65.5 62.4" stroke="#5a2a20" stroke-width="1.7" fill="none" stroke-linecap="round"/>`;
-  if(t>=1)g+=`<path d="M44 60 L48 61.5" stroke="#000" stroke-width=".8" opacity=".25"/>`;
-  /* 髪型 */
-  const HR=`url(#${uid}hr)`;
-  const H=[`<path d="M40 50 Q35 30 46 24 L42 12 L54 21 L58 5 L65 20 L77 9 L74 24 Q86 28 80 50 Q79 40 72 35 L71 43 L64 34 L58 42 L53 34 L48 42 L46 36 Q41 41 40 50Z" fill="${HR}"/><path d="M50 22 L56 12 M64 20 L72 13" stroke="#fff" stroke-width="1.2" opacity=".35"/>`,
-    `<path d="M40 52 Q34 26 62 21 Q88 22 82 48 L79 41 Q74 30 64 31 Q71 37 68 46 Q60 34 48 36 Q42 41 40 52Z" fill="${HR}"/><path d="M66 30 Q48 32 44 56 Q50 40 68 35Z" fill="${HR}"/><path d="M50 26 Q62 22 74 26" stroke="#fff" stroke-width="1.2" opacity=".35" fill="none"/>`,
-    `<path d="M39 50 Q36 24 60 22 Q84 24 81 50 Q76 36 66 33 Q66 40 60 44 Q58 36 52 34 Q44 38 39 50Z" fill="${HR}"/><path d="M50 27 Q60 23 70 27" stroke="#fff" stroke-width="1.2" opacity=".35" fill="none"/>`,
-    `<path d="M38 52 L28 34 L42 36 L36 14 L50 26 L54 2 L62 22 L74 4 L74 26 L90 14 L82 36 L94 38 L82 52 Q80 38 70 34 L66 44 L60 34 L54 44 L50 35 Q42 38 38 52Z" fill="${HR}"/><path d="M50 26 L54 10 M62 22 L72 8" stroke="#fff" stroke-width="1.2" opacity=".35"/>`];
+   <linearGradient id="${u}j" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26262e"/><stop offset="1" stop-color="#0b0b0f"/></linearGradient>
+   <linearGradient id="${u}h" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="color-mix(in srgb,${hc} 80%,#fff)"/><stop offset=".45" stop-color="${hc}"/><stop offset="1" stop-color="${dk}"/></linearGradient>
+   <linearGradient id="${u}s" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${skd}"/><stop offset=".35" stop-color="${sk}"/><stop offset="1" stop-color="${sk}"/></linearGradient>
+   <radialGradient id="${u}a" cx=".5" cy=".55" r=".55"><stop offset="0" stop-color="${t>=4?gold:ac}" stop-opacity=".7"/><stop offset=".6" stop-color="${ac}" stop-opacity=".15"/><stop offset="1" stop-color="${ac}" stop-opacity="0"/></radialGradient>
+   <radialGradient id="${u}i" cx=".45" cy=".4" r=".6"><stop offset="0" stop-color="${t>=5?'#fff7d6':'#f59e0b'}"/><stop offset=".55" stop-color="${t>=5?ac:'#b45309'}"/><stop offset="1" stop-color="#2a1205"/></radialGradient>
+   <filter id="${u}g" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2"/></filter>
+   <clipPath id="${u}l"><path d="M43.8 62.4 Q49.6 56 57.2 59.4 Q54.8 66.6 46.6 65.8Z"/></clipPath>
+   <clipPath id="${u}r"><path d="M76.2 62.4 Q70.4 56 62.8 59.4 Q65.2 66.6 73.4 65.8Z"/></clipPath></defs>`;
+  /* オーラ（ランクが上がるほど強く） */
+  if(t>=1)g+=`<ellipse cx="60" cy="96" rx="${44+t*3}" ry="${56+t*3}" fill="url(#${u}a)" opacity="${.25+t*.13}"><animate attributeName="opacity" values="${.2+t*.11};${.45+t*.1};${.2+t*.11}" dur="3.4s" repeatCount="indefinite"/></ellipse>`;
+  if(t>=5)g+=`<circle cx="60" cy="56" r="40" fill="none" stroke="#fff7d6" stroke-width="1.4" opacity=".7" filter="url(#${u}g)"/><circle cx="60" cy="56" r="40" fill="none" stroke="${gold}" stroke-width=".8" stroke-dasharray="2 5"><animateTransform attributeName="transform" type="rotate" from="0 60 56" to="360 60 56" dur="20s" repeatCount="indefinite"/></circle>`;
+  /* 背中の武器（職業） */
+  const W={warrior:`<path d="M92 160 L104 92 L109 93 L99 160Z" fill="#9ca3af"/><path d="M98 96 L114 100" stroke="${t>=4?gold:'#3f3f46'}" stroke-width="4" stroke-linecap="round"/><path d="M106 96 L110 76" stroke="#1c1917" stroke-width="5" stroke-linecap="round"/><circle cx="110.5" cy="74" r="3" fill="${t>=4?gold:ac}"/>${t>=3?`<path d="M104 92 L96 140" stroke="${ac}" stroke-width="1.5" filter="url(#${u}g)"/>`:''}`,
+   sage:`<path d="M20 160 L14 64" stroke="#3b2414" stroke-width="4.5" stroke-linecap="round"/><path d="M8 66 Q14 50 20 66" stroke="${gold}" stroke-width="2" fill="none"/><circle cx="14" cy="60" r="${7+t}" fill="${ac}" filter="url(#${u}g)"/><circle cx="14" cy="60" r="${4+t*.6}" fill="#fff7ed"/>`,
+   monk:`${[0,1,2].map(i=>`<path d="M${14+i*4} ${150-i*16} Q${4+i*3} ${120-i*14} ${16+i*3} ${96-i*10}" stroke="${ac}" stroke-width="2" fill="none" opacity="${.8-i*.2}" filter="url(#${u}g)"/>`).join('')}<path d="M106 150 Q116 120 104 96" stroke="${ac}" stroke-width="2" fill="none" opacity=".7" filter="url(#${u}g)"/>`,
+   guardian:`<path d="M2 96 Q2 84 22 82 L34 86 L30 150 Q10 140 4 120Z" fill="#3f3f46" stroke="${t>=4?gold:ac}" stroke-width="2"/><path d="M14 98 L22 92 L28 100 L22 116Z" fill="${ac}"/>`,
+   explorer:`<path d="M104 70 Q126 116 100 160" stroke="#5b3413" stroke-width="3.5" fill="none" stroke-linecap="round"/><line x1="104" y1="70" x2="100" y2="160" stroke="#d6d3d1" stroke-width=".8"/><path d="M90 104 L96 70 M94 104 L102 72" stroke="#78350f" stroke-width="2"/><path d="M94 70 l2 -6 l2 6Z M100 72 l2 -6 l2 6Z" fill="${ac}"/>`};
+  g+=W[cl]||'';
+  /* ポニーテール（後ろ） */
+  if(hs===2)g+=`<path d="M70 24 Q100 26 104 66 Q106 98 94 126 Q96 96 88 70 Q84 46 70 36Z" fill="url(#${u}h)"/><path d="M98 50 Q104 80 96 116" stroke="${rim}" stroke-width="1.2" fill="none" opacity=".8"/>`;
+  /* 後ろ髪 */
+  g+=`<path d="M31 78 Q24 34 46 18 Q62 8 80 16 Q98 28 90 78 Q88 62 84 54 L36 54 Q33 64 31 78Z" fill="${dk}"/>`;
+  if(hs===2)g+=`<path d="M38 58 L34 104 Q40 92 42 66Z M82 58 L86 104 Q80 92 78 66Z" fill="url(#${u}h)"/>`;
+  /* 体（テックウェア） */
+  const jac=t===0?'#2b2b33':`url(#${u}j)`;
+  g+=`<path d="M2 160 Q4 126 28 115 Q42 109 48 100 L72 100 Q78 109 92 115 Q116 126 118 160Z" fill="${jac}"/>
+   <path d="M92 115 Q116 126 118 160" stroke="${rim}" stroke-width="1.6" fill="none" opacity=".85"/><path d="M28 115 Q12 122 6 140" stroke="#000" stroke-width="3" opacity=".35" fill="none"/>`;
+  if(t===0)g+=`<path d="M30 116 Q34 98 50 96 L70 96 Q86 98 90 116 Q60 106 30 116Z" fill="#35353f"/><path d="M54 112 L52 134 M66 112 L68 134" stroke="#d6d3d1" stroke-width="1.4"/><circle cx="52" cy="135" r="1.6" fill="#d6d3d1"/><circle cx="68" cy="135" r="1.6" fill="#d6d3d1"/>`;
+  /* 首 */
+  g+=`<path d="M51 82 L69 82 L70 102 Q60 108 50 102Z" fill="${sk}"/><path d="M51 84 Q60 94 69 84 L69 92 Q60 98 51 92Z" fill="#000" opacity=".22"/>`;
+  if(t>=1){
+    g+=`<path d="M44 94 L60 102 L76 94 L80 118 Q60 128 40 118Z" fill="#141418"/><path d="M44 94 L60 102 L76 94" stroke="${t>=4?gold:'#3f3f46'}" stroke-width="1.4" fill="none"/>
+     <path d="M60 104 L60 160" stroke="#3a3a44" stroke-width="1.4"/><rect x="58.4" y="106" width="3.2" height="5" rx="1" fill="#71717a"/>
+     <path d="M24 118 L92 160" stroke="#0a0a0c" stroke-width="7"/><path d="M24 118 L92 160" stroke="${ac}" stroke-width=".8" stroke-dasharray="2 2" opacity=".8"/>
+     <rect x="46" y="132" width="11" height="7" rx="1.5" fill="#18181b" stroke="${t>=4?gold:ac}" stroke-width="1.3" transform="rotate(31 51 135)"/>
+     <path d="M96 118 L100 160" stroke="#0a0a0c" stroke-width="5"/><rect x="94.5" y="128" width="8" height="5" rx="1" fill="${ac}"/>`;
+  }
+  if(t>=2)g+=`<path d="M8 128 Q10 112 30 110 Q40 112 42 120 Q26 118 14 132Z" fill="#3f3f46" stroke="${t>=4?gold:ac}" stroke-width="1.4"/><path d="M12 140 L30 136" stroke="${ac}" stroke-width="3"/>`;
+  if(t>=3)g+=`<g filter="url(#${u}g)" opacity=".9"><path d="M70 118 L80 128 L80 150 M74 140 L88 140" stroke="${ac}" stroke-width="1.4" fill="none"/></g><path d="M70 118 L80 128 L80 150 M74 140 L88 140" stroke="#fff7ed" stroke-width=".6" fill="none"/>`;
+  if(t>=4)g+=`<path d="M64 142 L70 136 L76 142 L70 150Z" fill="${gold}" stroke="#78350f" stroke-width=".8"/><circle cx="70" cy="143" r="1.8" fill="${ac}"/><path d="M92 115 Q108 110 116 120 Q118 140 112 160 L104 160 Q108 136 92 115Z" fill="#7f1d1d" opacity=".9"/>`;
+  /* 耳 */
+  g+=`<path d="M41 58 Q36 58 37 66 Q38 72 43 72Z" fill="${skd}"/><path d="M79 58 Q84 58 83 66 Q82 72 77 72Z" fill="${sk}"/>`;
+  if(t>=3)g+=`<rect x="80.5" y="62" width="3.4" height="7" rx="1.5" fill="#18181b"/><circle cx="82.2" cy="65.5" r="1.3" fill="${ac}" filter="url(#${u}g)"/><circle cx="82.2" cy="65.5" r=".8" fill="#fff7ed"/>`;
+  else g+=`<circle cx="82" cy="70" r=".9" fill="#d4d4d8"/>`;
+  /* 顔（大人っぽい細めの輪郭） */
+  g+=`<path d="M42 52 Q42 30 60 30 Q78 30 78 52 L77.4 66 Q75.6 80 66 88.4 Q60 92.6 54 88.4 Q44.4 80 42.6 66Z" fill="url(#${u}s)"/>
+   <path d="M77.4 58 Q76.6 78 66 88.4" stroke="${rim}" stroke-width="1.6" fill="none" opacity=".9"/><path d="M42.6 66 Q44.4 80 54 88.4 Q48 84 46 74Z" fill="#000" opacity=".12"/><ellipse cx="47" cy="71" rx="4" ry="2" fill="#e11d48" opacity=".07"/><ellipse cx="73" cy="71" rx="4" ry="2" fill="#e11d48" opacity=".07"/>`;
+  /* 目 */
+  const eye=(cx,clip,flip)=>{const s=flip?-1:1;return `<path d="${flip?'M76.2 62.4 Q70.4 56 62.8 59.4 Q65.2 66.6 73.4 65.8Z':'M43.8 62.4 Q49.6 56 57.2 59.4 Q54.8 66.6 46.6 65.8Z'}" fill="#f5f5f4"/>
+    <g clip-path="url(#${clip})"><circle cx="${cx}" cy="62.2" r="4" fill="url(#${u}i)"/><circle cx="${cx}" cy="62.2" r="1.7" fill="#120804"/><circle cx="${cx-1.1*s}" cy="60.5" r=".9" fill="#fff"/><circle cx="${cx+1.1*s}" cy="63.2" r=".45" fill="#fff" opacity=".8"/><path d="${flip?'M76.2 62.4 Q70.4 56 62.8 59.4':'M43.8 62.4 Q49.6 56 57.2 59.4'} L${flip?62.8:57.2} 60.8 L${flip?76.2:43.8} 61.6Z" fill="#000" opacity=".25"/></g>
+    <path d="${flip?'M77 62 Q70.4 55 62.4 59.2':'M43 62 Q49.6 55 57.6 59.2'}" stroke="#141012" stroke-width="2.7" fill="none" stroke-linecap="round"/><path d="${flip?'M77 62 L79.2 60.2':'M43 62 L40.8 60.2'}" stroke="#141012" stroke-width="1.4" stroke-linecap="round"/>
+    <path d="${flip?'M73.8 65 Q69 66.4 64.6 64.4':'M46.2 65 Q51 66.4 55.4 64.4'}" stroke="#000" stroke-width=".6" fill="none" opacity=".35"/>`};
+  g+=eye(51.3,u+'l',false)+eye(68.7,u+'r',true);
+  if(t>=5)g+=`<circle cx="51.3" cy="62.2" r="4.2" fill="${ac}" opacity=".55" filter="url(#${u}g)"/><circle cx="68.7" cy="62.2" r="4.2" fill="${ac}" opacity=".55" filter="url(#${u}g)"/>`;
+  /* 眉・鼻・口 */
+  g+=`<path d="M43.2 54.6 Q50 51 57.6 53.8" stroke="${dk}" stroke-width="2.3" fill="none" stroke-linecap="round"/><path d="M76.8 54.6 Q70 51 62.4 53.8" stroke="${dk}" stroke-width="2.3" fill="none" stroke-linecap="round"/>
+   <path d="M61 66 L59.4 73.4 L62 73.8" stroke="#000" stroke-width=".9" fill="none" opacity=".3"/><path d="M62 73.6 L63 72.6" stroke="${rim}" stroke-width=".8" opacity=".7"/>
+   <path d="M55.6 80.4 Q60 81.8 64.4 80" stroke="#6b2a1e" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M57.4 83 Q60 83.8 62.6 83" stroke="#000" stroke-width=".6" opacity=".18" fill="none"/>`;
+  /* 前髪（4種類） */
+  const HU=`url(#${u}h)`,RL=(d)=>`<path d="${d}" stroke="${rim}" stroke-width="1.3" fill="none" opacity=".9"/>`;
+  const tex=(a)=>a.map(d=>`<path d="${d}" stroke="${dk}" stroke-width=".9" fill="none" opacity=".7"/>`).join('');
+  const side=`<path d="M38 50 Q33 70 38 88 Q41 72 44 58Z" fill="${HU}"/><path d="M82 50 Q87 70 82 88 Q79 72 76 58Z" fill="${HU}"/>`;
+  const H=[
+   `${side}<path d="M33 68 Q29 34 50 20 Q72 11 87 28 Q95 44 88 68 L84.6 52 L82.6 64 L77 44 L73 61 L67 41 L62.6 59 L58 41 L53 60 L48.6 43 L44 61 L41 48 L37.6 62Z" fill="${HU}"/>${tex(['M50 26 Q46 40 47 54','M62 22 Q60 36 60.5 50','M72 24 Q76 38 75 52','M42 36 Q40 46 41.5 56'])}${RL('M84 24 Q95 42 88 68')}<path d="M46 26 Q58 18 72 22" stroke="#fff" stroke-width="1.2" opacity=".28" fill="none"/>`,
+   `${side}<path d="M34 70 Q28 30 56 19 Q86 14 88 46 L86 66 Q82 42 72 34 Q62 42 54 52 Q48 60 45.6 68 Q38 66 34 70Z" fill="${HU}"/><path d="M72 34 Q57 44 46 68 Q52 50 67 38Z" fill="${dk}" opacity=".45"/>${tex(['M58 22 Q52 32 48 50','M70 22 Q64 30 58 44','M80 28 Q84 44 84 58'])}${RL('M84 28 Q90 44 86 66')}<path d="M44 30 Q60 20 76 24" stroke="#fff" stroke-width="1.2" opacity=".28" fill="none"/>`,
+   `${side}<path d="M35 62 Q32 28 58 20 Q84 19 85 46 L84 62 Q80 44 72 39 L67.6 54 L63 38 L57.4 53 L52.6 39 L47 55 Q41 54 35 62Z" fill="${HU}"/>${tex(['M50 26 Q46 38 47 50','M64 24 Q62 34 62.6 44','M76 30 Q80 40 80 52'])}${RL('M82 30 Q88 44 84 62')}<path d="M46 27 Q58 21 72 25" stroke="#fff" stroke-width="1.2" opacity=".28" fill="none"/>`,
+   `${side}<path d="M33 66 L22 48 L36 46 L28 24 L44 32 L46 8 L57 26 L68 4 L71 27 L88 12 L82 35 L98 36 L88 66 L84.6 50 L81 62 L76 42 L71 59 L66 40 L61 57 L57 40 L52 58 L48 42 L44 60 L40 48Z" fill="${HU}"/>${tex(['M46 14 L52 40','M68 10 L66 36','M84 18 L76 42'])}${RL('M88 12 L82 35 L98 36 L88 66')}<path d="M48 14 L56 30 M68 8 L68 26" stroke="#fff" stroke-width="1" opacity=".3"/>`];
   g+=H[hs]||H[0];
-  /* 頭の装備 */
-  if(t===1||t===2)g+=`<path d="M41 40 Q60 34 79 40 L79 44 Q60 38 41 44Z" fill="${ac}"/><path d="M79 41 Q90 40 98 46 Q90 44 86 48 Q92 50 94 56 Q86 50 79 44Z" fill="${ac}"/>${t===2?`<path d="M60 36 L63 40 L60 44 L57 40Z" fill="${gold}"/>`:''}`;
-  if(t===3)g+=`<path d="M40 41 Q60 33 80 41 L80 45 Q60 37 40 45Z" fill="${metal}"/><path d="M60 34 L64 40 L60 46 L56 40Z" fill="${ac}"/><path d="M60 34 L64 40 L60 46 L56 40Z" fill="${ac}" filter="url(#${uid}gw)"/>`;
-  if(t>=4)g+=`<path d="M40 42 Q60 34 80 42 L80 46 Q60 38 40 46Z" fill="${gold}"/><path d="M40 42 L30 30 L44 38Z M80 42 L90 30 L76 38Z" fill="${gold}"/><path d="M60 22 L65 36 L60 44 L55 36Z" fill="${gold}" stroke="#92400e" stroke-width=".8"/><circle cx="60" cy="37" r="2.6" fill="${ac}"/>`;
-  if(t>=5)g+=`<ellipse cx="60" cy="10" rx="20" ry="4.5" fill="none" stroke="#fff7d6" stroke-width="2.6" filter="url(#${uid}gw)"/><ellipse cx="60" cy="10" rx="20" ry="4.5" fill="none" stroke="${gold}" stroke-width="1.6"/>`;
+  /* 頭の装備（高ランク） */
+  if(t>=4)g+=`<path d="M40 44 Q60 36 80 44" stroke="${gold}" stroke-width="2" fill="none"/><path d="M60 34 L63 40 L60 46 L57 40Z" fill="${gold}"/><circle cx="60" cy="40" r="1.5" fill="${ac}"/>`;
+  if(t>=5)g+=[[18,30],[100,26],[12,96],[108,90],[30,12],[92,8]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="1.6" fill="#fff7d6"><animate attributeName="opacity" values="0;1;0" dur="${2+i*.4}s" repeatCount="indefinite"/></circle>`).join('');
   return `<svg viewBox="0 0 120 160" role="img" aria-label="あなたのキャラクター">${g}</svg>`;
 }
 /* ---- モンスター（v9.5で凶悪化） ---- */
@@ -3501,8 +3514,9 @@ $('onbin').addEventListener('contextmenu',e=>{if(e.target.closest('#o-hold'))e.p
 
 
 /* ---- バージョン管理：更新しても記録はそのまま。初回起動時に更新内容をお知らせ ---- */
-const APP_VERSION='9.5.1';
+const APP_VERSION='9.6';
 const CHANGELOG=[
+ ['9.6','主人公を大人っぽいアニメ調の胸像に一新、黒×オレンジの「ブレイズ」テーマ（設定でネオンに戻せます）、太字の数字、能力値の伸び表示、起床時刻のビフォーアフター'],
  ['9.5.1','朝の案内を見た後でも、その朝まだ起動していなければ朝の起動画面を表示'],
  ['9.5','朝の起動（起床記録・敵の挑発・今日の誓い・起動ボーナス）、主人公キャラを一新、モンスターを凶悪化、レベル曲線をリアルに（Lv.100でSランク）'],
  ['9.4','GitHub経由の自動配信に対応。今後のアップデートはアプリを開くだけで届きます'],
@@ -3512,11 +3526,20 @@ const CHANGELOG=[
  ['9.0','自己申告XP・資格合格イベント・トロフィー・職業・スキルツリー・難易度・ゴースト対戦・未来への手紙'],
  ['8.0','プレミアムデザイン・AIコーチ・食事/PFC・音声日誌・読書・長期目標・報酬・分析・レポート・IndexedDB'],
  ['7.0','オンボーディングとホームを再設計'],['6.0','スキル（資格・専門知識）の成長']];
+/* テーマ：ブレイズ（黒×オレンジ・v9.6の標準）／ネオン（従来） */
+const BLAZE=[['#8b5cf6','#f97316'],['#6d28d9','#c2410c'],['#a78bfa','#fdba74'],['#22d3ee','#fb923c'],['#05070d','#0a0807'],['#0a0f1c','#100c0a'],['#0c1222','#14100d'],['#0d1322','#17120e'],['#101a30','#1d1712'],['#1b2540','#2c221b'],['#0e1a36','#2a1607'],['#15245099','#3a1d0899'],['#2a1460aa','#4a1f05aa'],['#8590b0','#a8998c'],['#eef2ff','#f5efe6'],['#c7cfe6','#d9cfc3'],['#0b1020','#120d0a'],['#0b1424','#140f0b'],['#170b24','#1f1008'],['139,92,246','249,115,22'],['#2e3b66','#4a3526'],['#4c1d95','#7c2d12'],['#9b6dff','#fb923c'],['#5b4bd1','#ea580c'],['#a5f3fc','#fed7aa'],['#3b1a7a','#5c2410'],['#0e7490','#9a3412'],['#c4b5fd','#fdba74'],['#4a5578','#6b5a4c'],['#4f46e5','#ea580c'],['#4c3db3','#c2410c'],['#6d5cf0','#f97316'],['#3b4e8f','#7a5238'],['34,211,238','251,146,60']];
+const warmHex=h=>{const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
+  if(!(b>r+8&&Math.max(r,g,b)<100&&g<=b))return h;const y=Math.round(.3*r+.5*g+.2*b),mix=(c,w)=>Math.max(0,Math.min(255,Math.round(c*.55+w*.45)));
+  return '#'+[mix(b,y),mix(g,y),mix(r,y)].map(v=>v.toString(16).padStart(2,'0')).join('')};
+const blazeCss=t=>BLAZE.reduce((a,[f,r])=>a.split(f).join(r),t).replace(/#[0-9a-fA-F]{6}\b/g,warmHex);
+function applyTheme(){const bl=(S.theme||'blaze')==='blaze';document.body.classList.toggle('blaze',bl);
+  document.querySelectorAll('style').forEach(st=>{if(st.dataset.orig==null)st.dataset.orig=st.textContent;st.textContent=bl?blazeCss(st.dataset.orig):st.dataset.orig});
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',bl?'#0a0807':'#05070d')}
 function renderVer(){const v=$('verbox');if(!v)return;
-  v.innerHTML=`<div class="rec"><span>いまのバージョン</span><b>v${APP_VERSION}</b></div>${CHANGELOG.slice(0,3).map(([n,t])=>`<div class="rec"><span>v${n}：${esc(t)}</span></div>`).join('')}
+  v.innerHTML=`<label class="sw" style="margin-bottom:8px"><span>デザインのテーマ<br><small style="color:var(--mute)">ブレイズ＝黒×オレンジ／ネオン＝従来の青紫</small></span><select id="themesel"><option value="blaze" ${(S.theme||'blaze')==='blaze'?'selected':''}>ブレイズ</option><option value="neon" ${S.theme==='neon'?'selected':''}>ネオン</option></select></label>`+`<div class="rec"><span>いまのバージョン</span><b>v${APP_VERSION}</b></div>${CHANGELOG.slice(0,3).map(([n,t])=>`<div class="rec"><span>v${n}：${esc(t)}</span></div>`).join('')}
     <label class="sw" style="margin-top:8px"><span>自動で更新する<br><small style="color:var(--mute)">アプリを開いたときに新しい版があれば自動で切り替えます</small></span><input type="checkbox" id="autoupd" ${S.autoUpd===false?'':'checked'}></label>
     <div class="tools" style="margin-top:10px"><button type="button" id="vercheck">今すぐ更新を確認</button></div><p class="note" id="vermsg">${canSelfUpdate()?'更新しても、XP・レベル・履歴などの記録はそのまま引き継がれます。':'claude.ai上では常に最新版が表示されます（自動更新はアプリ版で動きます）。'}</p>`}
-$('verbox').addEventListener('change',e=>{if(e.target.id==='autoupd'){S.autoUpd=e.target.checked;save();$('vermsg').textContent=e.target.checked?'自動更新をオンにしました。':'自動更新をオフにしました。新しい版はお知らせだけします。'}});
+$('verbox').addEventListener('change',e=>{if(e.target.id==='themesel'){S.theme=e.target.value;save();applyTheme();render();renderVer();return}if(e.target.id==='autoupd'){S.autoUpd=e.target.checked;save();$('vermsg').textContent=e.target.checked?'自動更新をオンにしました。':'自動更新をオフにしました。新しい版はお知らせだけします。'}});
 $('verbox').addEventListener('click',async e=>{if(e.target.id!=='vercheck')return;$('vermsg').textContent='確認しています…';
   try{if('serviceWorker' in navigator){const r=await navigator.serviceWorker.getRegistration();if(r)await r.update()}}catch(err){}
   try{const v=await remoteVersion();
@@ -3546,7 +3569,7 @@ function versionNotice(){
   if(!first&&S.profile){const t=(CHANGELOG.find(c=>c[0]===APP_VERSION)||[,''])[1];setTimeout(()=>achPop('アップデート v'+APP_VERSION,t,'UPDATE'),1200)}
 }
 
-useShields();applyPenalties();evalGhost();afterChange();curveNotice();render();versionNotice();setTimeout(()=>autoUpdate(true),1500);
+applyTheme();useShields();applyPenalties();evalGhost();afterChange();curveNotice();render();versionNotice();setTimeout(()=>autoUpdate(true),1500);
 if(!S.profile)startOnb(false);else showBrief();
 /* テスト用の読み取り口（画面からは使いません） */
 window.__hq={ver:v=>verNum(v),rank:lv=>rankOf(lv)[1],need:L=>lvNeed(L),lvb:L=>lvBase(L),lvOf:t=>levelOf(t),ign:()=>drawIgnite(),state:()=>JSON.parse(JSON.stringify(S)),xp:()=>totalXP(),lv:()=>levelOf(totalXP()),store:()=>storeNote,idb:()=>IDB.get('state'),
