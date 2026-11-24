@@ -1,5 +1,5 @@
 // 習慣クエスト：オフラインでも開けるようにするキャッシュ
-const CACHE = 'habit-quest-9.5';
+const CACHE = 'habit-quest-9.5.1';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

@@ -3164,7 +3164,7 @@ function syncVow(){const I=S.ign&&S.ign[cur];if(!I||!I.q)return;const day=S.log[
   else if(!done&&day._dc)delete day._dc}
 let igMode=false,igPick=null;
 function showBrief(force){
-  if(!S.profile||(!force&&S.brief===cur))return;
+  if(!S.profile||(!force&&S.brief===cur&&(S.ign[cur]||!igWindow())))return;
   ensureSide();briefDrawn=!!S.side[cur].shown;if(S.seenWeek==null)S.seenWeek=week();
   igMode=!S.ign[cur]&&igWindow();igPick=null;
   $('brief').hidden=false;document.body.style.overflow='hidden';igMode?drawIgnite():drawBrief();
@@ -3501,8 +3501,9 @@ $('onbin').addEventListener('contextmenu',e=>{if(e.target.closest('#o-hold'))e.p
 
 
 /* ---- バージョン管理：更新しても記録はそのまま。初回起動時に更新内容をお知らせ ---- */
-const APP_VERSION='9.5';
+const APP_VERSION='9.5.1';
 const CHANGELOG=[
+ ['9.5.1','朝の案内を見た後でも、その朝まだ起動していなければ朝の起動画面を表示'],
  ['9.5','朝の起動（起床記録・敵の挑発・今日の誓い・起動ボーナス）、主人公キャラを一新、モンスターを凶悪化、レベル曲線をリアルに（Lv.100でSランク）'],
  ['9.4','GitHub経由の自動配信に対応。今後のアップデートはアプリを開くだけで届きます'],
  ['9.3','アプリが新しいバージョンを自動で検知して更新。設定から自動更新のオン・オフと手動確認'],
@@ -3522,7 +3523,7 @@ $('verbox').addEventListener('click',async e=>{if(e.target.id!=='vercheck')retur
     if(v&&verNum(v)>verNum(APP_VERSION)){$('vermsg').textContent='新しいバージョン v'+v+' があります。読み込み直します…';try{sessionStorage.setItem('hq-upd',v)}catch(e){}setTimeout(()=>location.reload(),800)}
     else $('vermsg').textContent='最新のバージョンです（v'+APP_VERSION+'）。'}catch(err){$('vermsg').textContent='確認できませんでした。電波のある場所でもう一度お試しください。'}});
 /* ---- 自動更新：公開先に新しい版があれば検知して切り替える（記録はそのまま） ---- */
-const verNum=v=>String(v).split('.').map(Number).reduce((a,x)=>a*1000+x,0);
+const verNum=v=>{const p=String(v).split('.').map(Number);while(p.length<3)p.push(0);return p.slice(0,3).reduce((a,x)=>a*1000+(x||0),0)};
 const canSelfUpdate=()=>/^https?:/.test(location.protocol)&&!/claude\.ai|claudeusercontent|anthropic/.test(location.hostname);
 let lastVerCheck=0,pendingVer=null;
 async function remoteVersion(){const res=await fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'});const t=await res.text();const m=t.match(/APP_VERSION='([\d.]+)'/);return m?m[1]:null}
@@ -3548,7 +3549,7 @@ function versionNotice(){
 useShields();applyPenalties();evalGhost();afterChange();curveNotice();render();versionNotice();setTimeout(()=>autoUpdate(true),1500);
 if(!S.profile)startOnb(false);else showBrief();
 /* テスト用の読み取り口（画面からは使いません） */
-window.__hq={rank:lv=>rankOf(lv)[1],need:L=>lvNeed(L),lvb:L=>lvBase(L),lvOf:t=>levelOf(t),ign:()=>drawIgnite(),state:()=>JSON.parse(JSON.stringify(S)),xp:()=>totalXP(),lv:()=>levelOf(totalXP()),store:()=>storeNote,idb:()=>IDB.get('state'),
+window.__hq={ver:v=>verNum(v),rank:lv=>rankOf(lv)[1],need:L=>lvNeed(L),lvb:L=>lvBase(L),lvOf:t=>levelOf(t),ign:()=>drawIgnite(),state:()=>JSON.parse(JSON.stringify(S)),xp:()=>totalXP(),lv:()=>levelOf(totalXP()),store:()=>storeNote,idb:()=>IDB.get('state'),
   meal:()=>mealTotals(cur),targets:()=>targets(),coins:()=>coinsNow(),chests:()=>chestCoins(),streakPrev:()=>streakPrev(),fx:(a,b)=>levelUp(a,b),perkPts:()=>perkPts(),judge:t=>{const j=ruleJudge(t);return j&&!j.need?finalize(j):j},streak:()=>streak(),stat:k=>statNow(k),votes:()=>votes(),boss:()=>{const b=bossInfo();return{id:b.B.id,area:b.B.area,hp:b.hp,dmg:b.dmg,raw:b.raw,heal:b.heal}},enc:()=>S.enc[cur]||null,coins2:()=>S.bonusCoins,av:o=>avatarSVG(o),mon:()=>[...BOSS2,...FIELD].map(m=>monsterSVG(m,{uid:'g'+m.id})).join('')};
 storageBoot();AI.boot();
 }
