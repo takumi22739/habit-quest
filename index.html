@@ -208,6 +208,23 @@ h2 small{font:500 13px "Noto Sans JP";color:var(--mute)}
 .pips i.on{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px #f5c45166}
 .brief{position:fixed;inset:0;z-index:78;background:radial-gradient(120% 70% at 50% 0%,#101c3a,var(--bg) 70%);overflow-y:auto}
 .brief[hidden]{display:none}
+.xproof{text-align:center;padding:16px 10px;border-radius:18px;background:radial-gradient(120% 100% at 50% 0%,#7c2d1288,#0a080700);border:1px solid #f9731655}
+.xproof small{display:block;color:#fdba74;font-weight:700}.xproof .xcount{display:block;font:400 clamp(64px,22vw,96px)/1.05 "Dela Gothic One","Inter",sans-serif;color:#fff;text-shadow:0 0 30px #f97316}.xproof span{font-size:13px;color:#e7ddd0}
+.xyest,.xbaton,.xgoal,.xvis{padding:12px 14px;border-radius:14px;background:#0008;border:1px solid #ffffff1f}.xyest small,.xbaton small,.xgoal small,.xvis small{display:block;font-size:12px;color:#fdba74;font-weight:700}
+.xyest b,.xgoal b{display:block;font-size:16px;margin-top:2px}.xbaton{border-color:#f5c451;box-shadow:0 0 18px #f5c45144}.xbaton b{display:block;font-size:20px;color:#fde68a;margin:4px 0}.xbaton span,.xgoal span{font-size:13px;color:#d9cfc3;display:block}
+.xfacts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.xfacts div{padding:8px;border-radius:10px;background:#ffffff0a;text-align:center}.xfacts small{display:block;font-size:10px;color:#a8998c}.xfacts b{font:400 17px "Dela Gothic One","Inter",sans-serif}
+.xgbar{height:6px;border-radius:6px;background:#ffffff1a;margin:8px 0 4px;overflow:hidden}.xgbar i{display:block;height:100%;background:linear-gradient(90deg,#f97316,#f5c451)}
+.xvis{text-align:center;border-style:dashed;border-color:#f9731688}.xvis b{display:block;font:900 20px/1.5 "Noto Sans JP",sans-serif;margin-top:4px}
+.xhold{--p:0;position:relative;overflow:hidden;padding:20px;border-radius:18px;border:2px solid #f97316;background:#1a0d06;color:#fff;touch-action:none;user-select:none;-webkit-user-select:none}
+.xhold::before{content:"";position:absolute;inset:0;width:calc(var(--p)*100%);background:linear-gradient(90deg,#f97316,#f5c451);opacity:.85;transition:width .04s linear}
+.xhold span,.xhold small{position:relative;display:block}.xhold span{font:900 20px "Noto Sans JP",sans-serif;letter-spacing:.06em}.xhold small{font-size:12px;opacity:.85;margin-top:4px}.xhold.holding{box-shadow:0 0 30px #f97316}
+.ignext.ghost{background:none;border-color:#ffffff22;font-size:14px;color:#a8998c}
+.xdeclared{text-align:center;padding:12px;border-radius:14px;background:#14532d55;border:1px solid #39ff9a88;color:#bbf7d0;font-weight:700}
+.igboom.xdecl b{font:900 clamp(22px,7vw,34px)/1.4 "Noto Sans JP",sans-serif;text-align:center;padding:0 18px}
+.xbt small{display:block;font:800 11px "Inter",sans-serif;letter-spacing:.2em;color:#fdba74}.xbt b{display:block;margin:2px 0 8px}.xbt input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--ink);font-size:15px}
+.xbt .xspbtn{animation:none;margin-top:8px}.xbt .xok{display:block;margin-top:6px;font-size:12px;color:#39ff9a}
+.dash .xbt{width:min(100%,380px);text-align:left;padding:12px;border-radius:14px;background:#ffffff0d;border:1px solid #ffffff1a}
+.xprl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:380px}.xprl span{font-size:12px;padding:5px 9px;border-radius:999px;background:#ffffff0d;color:#d9cfc3}.xprl span.new{background:#f9731633;color:#fde68a;border:1px solid #f97316}
 .igev,.xfcard.ev{border:1px solid var(--ec);background:linear-gradient(90deg,color-mix(in srgb,var(--ec) 22%,#0a0807),#0a0807);border-radius:14px;padding:10px 12px}
 .igev small,.xfcard small{display:block;font:800 11px "Inter",sans-serif;letter-spacing:.2em;color:#fdba74}.igev b{display:block;font-size:17px}.igev span{font-size:13px;color:#e7ddd0}
 .xfcard{display:block;width:100%;text-align:left;margin:0 0 10px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
@@ -1684,7 +1701,7 @@ function achState(){
 }
 /* 変化のあとに：ボス討伐・実績解除 */
 function afterChange(){
-  if(S.profile)storyToday();syncEnc();syncBounty();syncVow();syncFirst();syncStory();syncPet();syncBet();refillShield();checkClassUp();
+  if(S.profile)storyToday();syncEnc();syncBounty();syncVow();syncFirst();syncStory();syncPet();syncBet();syncPR();refillShield();checkClassUp();
   const b=bossInfo();
   if(b.dmg>=b.hp&&!S.boss[b.w]){
     S.boss[b.w]=cur;
@@ -3322,7 +3339,7 @@ function drawIgnite(){
   const now=new Date(),t=hhmm(now),[wh,wm]=(S.wakeT||'07:00').split(':').map(Number),diff=(wh*60+wm)-(now.getHours()*60+now.getMinutes());
   const tx=totalXP(),lv=levelOf(tx),tier=tierOf(lv),stk=igStreak(),nextLv=[10,25,45,70,100][tier];
   const qs=todays().filter(q=>!q.orphan&&!(S.log[cur]||{})[q.id]),b=bossInfo(),ep=storyEp(storyToday()),G=S.gacha&&S.gacha[cur];
-  const dots=`<div class="igdots">${[0,1,2,3].map(i=>`<i class="${i===igStep?'on':i<igStep?'done':''}"></i>`).join('')}</div>`;
+  const dots=`<div class="igdots">${[0,1,2,3,4].map(i=>`<i class="${i===igStep?'on':i<igStep?'done':''}"></i>`).join('')}</div>`;
   const nextBtn=(lbl)=>`<button class="ignext" id="ig-next" type="button">${lbl||'次へ'} ▶</button>`;
   let h='';
   if(igStep===0){
@@ -3332,14 +3349,16 @@ function drawIgnite(){
       <div class="ighero2">${myAvatar('ig')}<div class="igrk"><b>RANK ${rankOf(lv)[1]}</b><span>Lv.${lv}</span></div></div>
       ${nextLv?`<div class="ignextform"><div class="nf">${heroArt()?heroSVG(tier+1,'nf'):''}</div><div><small>次の姿まで</small><b>${toNext.toLocaleString()} XP</b><div class="bar"><i style="width:${pct}%"></i></div></div></div>`:''}
       ${eventOf(cur)?`<div class="igev" style="--ec:${eventOf(cur).c}"><small>TODAY'S EVENT</small><b>${eventOf(cur).n}</b><span>${eventOf(cur).d}</span></div>`:''}
-      <div class="igrow"><span>朝の起動 ${stk}日連続</span><span>Day ${Math.min(Math.max(1,dayNum()),DAYS)} / 66</span></div>${nextBtn('宝箱へ')}</div>`;
+      <div class="igrow"><span>朝の起動 ${stk}日連続</span><span>Day ${Math.min(Math.max(1,dayNum()),DAYS)} / 66</span></div>${nextBtn('証を見る')}</div>`;
   }else if(igStep===1){
+    h=proofScene(nextBtn);
+  }else if(igStep===2){
     const col=G?GRAR.find(x=>x[0]===G.r)[4]:'#f97316';
     h=`<div class="igs igs1"><div class="ignk">TODAY'S CHEST</div>
       <button type="button" class="chestbtn${G?' opened r'+G.r:''}" id="ig-chest" ${G?'disabled':''}>${chestSVG(!!G,col)}</button>
       ${G?`<div class="gres" style="--rc:${col}"><b class="rar">${G.r}</b><div class="gr">+${G.xp} XP　+${G.coin} コイン</div>${G.title?`<div class="gt">称号「${esc(G.title)}」獲得</div>`:''}</div>${nextBtn('物語へ')}`
         :`<div class="gtap">タップして開ける</div>`}</div>`;
-  }else if(igStep===2){
+  }else if(igStep===3){
     h=`<div class="igs igs2"><div class="ignk">STORY</div><div class="epno">第${ep.no}話</div><div class="eptt">${esc(ep.t)}</div>
       <p class="eptx">${ep.a}</p><div class="eplock">続きは今日のクエストを ${storyNeed()}つ 達成で解放</div>${nextBtn('戦いへ')}</div>`;
   }else{
@@ -3353,6 +3372,7 @@ function drawIgnite(){
       <label class="igwt">目標の起床時刻 <input type="time" id="ig-wt" value="${S.wakeT}"></label></div>`;
   }
   $('briefin').innerHTML=dots+h;B.scrollTop=0;
+  const cn=document.querySelector('.xcount');if(cn&&!cn.dataset.done){cn.dataset.done=1;const to=+cn.dataset.to,t0=performance.now();const tick=n=>{const p=Math.min(1,(n-t0)/1400);cn.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
 }
 function ignite(){
   if(S.ign[cur])return;const now=new Date(),[wh,wm]=(S.wakeT||'07:00').split(':').map(Number),early=now.getHours()*60+now.getMinutes()<=wh*60+wm;
@@ -3383,7 +3403,8 @@ function finishDash(){clearInterval(dashT);dashT=null;const day=S.log[cur]||(S.l
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   if(b.id==='dash-go')startDash();else if(b.id==='dash-x')closeDash();
   else if(b.id==='dash-done'){const I=S.ign[cur];closeDash();if(I&&I.q){goTab('quests');const btn=document.querySelector(`#list [data-do="${CSS.escape(I.q)}"]`);if(btn)complete(I.q,btn)}}
-  else if(b.id==='dashbtn')openDash()});
+  else if(b.id==='dashbtn')openDash();
+  else if(b.id==='batonsave'||b.id==='rbatonsave'){saveBaton(b.id==='rbatonsave'?'r':'');const r=$('resov');if(r&&!r.hidden)showResult();else render()}});
 function storyModal(){const ep=storyEp(storyToday()),open=S.story&&S.story.open&&S.story.open[cur];
   let o=$('storym');if(!o){o=document.createElement('div');o.id='storym';o.className='dash';document.body.appendChild(o)}
   o.innerHTML=`<div class="dk">STORY</div><div class="epno">第${ep.no}話</div><div class="eptt">${esc(ep.t)}</div><p class="eptx">${ep.a}</p>
@@ -3417,13 +3438,15 @@ function drawBrief(){
       <li>クエストを達成すると、ときどき「会心の一撃」でXPが2倍に</li></ul></div>
     <button class="btn main" id="b-go" type="button" style="margin-top:auto">冒険に出る</button>`;
 }
+['pointerdown','pointerup','pointerleave','pointercancel'].forEach(ev=>$('briefin').addEventListener(ev,e=>{const h=e.target.closest('#ig-hold');if(!h)return;if(ev==='pointerdown'){e.preventDefault();holdStart(h)}else holdEnd(h)}));
 $('briefin').addEventListener('change',e=>{if(e.target.id==='ig-wt'&&e.target.value){S.wakeT=e.target.value;save();drawIgnite()}});
 $('briefin').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   if(b.dataset.vow){igPick=igPick===b.dataset.vow?null:b.dataset.vow;drawIgnite();return}
   if(b.id==='ig-go'){ignite();return}
   if(b.dataset.bet){placeBet(+b.dataset.bet);drawIgnite();return}
-  if(b.id==='ig-next'){igStep=Math.min(3,igStep+1);drawIgnite();return}
+  if(b.id==='ig-next'){igStep=Math.min(4,igStep+1);drawIgnite();return}
+  if(b.id==='ig-hold'){if(e.detail===0)declare();return}
   if(b.id==='ig-chest'){rollChest();b.classList.add('shake');setTimeout(()=>{drawIgnite();const c=document.querySelector('.chestbtn');if(c)c.classList.add('burst')},700);return}
   if(b.id==='b-draw'){briefDrawn=true;S.side[cur].shown=true;save();drawBrief();
     const best=sideToday().map(q=>q.rar).sort((x,y)=>['N','R','SR','SSR'].indexOf(y)-['N','R','SR','SSR'].indexOf(x))[0];
@@ -3706,8 +3729,9 @@ $('onbin').addEventListener('contextmenu',e=>{if(e.target.closest('#o-hold'))e.p
 
 
 /* ---- バージョン管理：更新しても記録はそのまま。初回起動時に更新内容をお知らせ ---- */
-const APP_VERSION='9.9';
+const APP_VERSION='10.0';
 const CHANGELOG=[
+ ['10.0','朝に「PROOF OF LIFE（証）」：自分との約束を守った回数・昨日のあなた・積み上げた実績・目標・なりたい自分。長押しで宣言、夜に明日の自分へバトンを託す、自己ベスト更新（NEW RECORD）'],
  ['9.9','相棒モンスター（卵から育成・3段階進化）、必殺技ゲージとカットイン、今日の自分に賭ける、コンボ、1日のリザルト（S〜D評価）、グレイヴェル復興マップ、ダンジョン探索、ボスの装備ドロップ、日替わりランダムイベント'],
  ['9.8','朝の起動を一新：毎朝の宝箱ガチャ（レア称号つき）、あなたが主人公の物語（毎朝1話・クエスト達成で後編解放）、ボス襲来（正午までの先制攻撃）、2分スタートダッシュ'],
  ['9.7','主人公をイラストに変更（ランクごとに6段階で進化）。設定「キャラクターの絵」でカスタム描画キャラにも切り替え可能'],
@@ -3831,9 +3855,10 @@ function showResult(){const G=dayGrade(cur),day=S.log[cur]||{},mvp=entries(day).
   let o=$('resov');if(!o){o=document.createElement('div');o.id='resov';o.className='dash';document.body.appendChild(o)}
   o.innerHTML=`<div class="dk">DAY ${Math.max(1,dayNum())} RESULT</div><div class="xrgrade" style="--rc:${col}">${G.g}</div>
    <div class="xrgrid"><div><small>獲得XP</small><b>+${dayXP(cur)}</b></div><div><small>クエスト</small><b>${G.dn}/${G.tot}</b></div><div><small>最大コンボ</small><b>×${(S.comboMax||{})[cur]||0}</b></div><div><small>ボスへのダメージ</small><b>${bd}</b></div></div>
+   <div class="xprl">${PRDEF.map(([k,n,,u])=>`<span class="${S.pr&&S.pr[k]&&S.pr[k].d===cur?'new':''}">${n} <b>${prFmt(k,S.pr&&S.pr[k]?S.pr[k].v:0)}${S.pr&&S.pr[k]&&S.pr[k].v?(u||''):''}</b>${S.pr&&S.pr[k]&&S.pr[k].d===cur?' NEW':''}</span>`).join('')}</div>
    ${mvp?`<p class="xrmvp">MVP：${esc(mvp[1].name)}（+${mvp[1].xp} XP）</p>`:''}${br?`<p class="xrbet">${br==='win'?'賭け：勝利 +'+S.bet[cur].amt*2+'コイン':br==='lose'?'賭け：敗北':'賭け：まだ勝負中（全クエストで勝利）'}</p>`:''}
    <p>${{S:'完璧な一日。物語の主人公そのものだ。',A:'全クエスト達成。明日は朝の起動からSを狙え。',B:'いい戦いだった。あと少しで全制覇。',C:'一歩でも進んだ。それが明日の土台になる。',D:'今日はここから。寝る前の1クエストでも流れは変わる。'}[G.g]}</p>
-   <button class="dlater" id="res-x" type="button">閉じる</button>`;o.hidden=false;document.body.style.overflow='hidden';
+   ${batonHTML('r')}<button class="dlater" id="res-x" type="button">閉じる</button>`;o.hidden=false;document.body.style.overflow='hidden';
   $('res-x').onclick=()=>{o.hidden=true;document.body.style.overflow=''}}
 function autoResult(){if(PLAIN()||!S.profile)return;if(new Date().getHours()>=20&&!(S.resShown||{})[cur]&&dayXP(cur)>0)setTimeout(showResult,1200)}
 /* -- ホーム用カード -- */
@@ -3845,6 +3870,7 @@ function funHome(){const el=$('funhome');if(!el)return;const e=eventOf(cur),P=sp
   const C=S.combo&&S.combo.d===cur&&Date.now()-S.combo.t<15*60e3&&S.combo.n>=1?S.combo:null;
   if(C)h+=`<div class="xfcard combo"><small>COMBO</small><b>×${C.n}</b><span>15分以内に次を達成で ×${C.n+1}（XP +${Math.round((comboMul(C.n+1)-1)*100)}%）</span></div>`;
   h+=`<button type="button" class="xfcard pc" id="pethome">${petCard(false)}</button>`;
+  if(new Date().getHours()>=18)h+=`<div class="xfcard">${batonHTML()}</div>`;
   if(new Date().getHours()>=18||allDone(cur))h+=`<button type="button" class="xfcard res" id="resbtn"><small>RESULT</small><b>今日のリザルトを見る</b><span>評価 ${dayGrade(cur).g}</span></button>`;
   el.innerHTML=h;
   const sp=$('spgo');if(sp)sp.onclick=useSpecial;el.querySelectorAll('[data-bet]').forEach(x=>x.onclick=()=>{placeBet(+x.dataset.bet);render()});
@@ -3858,6 +3884,49 @@ function renderFunBattle(){const s=$('spbox');if(s){const P=spState(),b=bossInfo
   const d=$('dgbox');if(d)d.innerHTML=dungeonHTML()}
 
 const todaysOf=d=>todays();
+/* ==== v10.0 自信と生きている実感：証（PROOF）・宣言・バトン・自己ベスト ==== */
+const promiseCount=()=>actCount();
+const bossesDown=()=>Object.keys(S.boss||{}).length;
+const booksDone=()=>(S.books||[]).filter(b=>b.status==='done').length;
+function bestStreak(){let best=0,run=0;for(let d=S.start;d<=cur;d=addDays(d,1)){if(isActive(d)){run++;best=Math.max(best,run)}else if(d<cur)run=0}return best}
+/* -- 自己ベスト -- */
+const PRDEF=[['dayxp','1日の獲得XP',d=>dayXP(d),'XP'],['quests','1日の達成クエスト',d=>entries(S.log[d]||{}).filter(([,e])=>!e.extra&&!e.act).length,'個'],
+ ['combo','最大コンボ',d=>(S.comboMax||{})[d]||0,'連'],['wake','いちばん早い起動',d=>{const I=S.ign&&S.ign[d];if(!I)return 0;const[h,m]=I.t.split(':').map(Number);return 24*60-(h*60+m)},'']];
+const prFmt=(k,v)=>k==='wake'?(v?(()=>{const t=24*60-v;return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')})():'—'):v;
+function initPR(){if(S.pr)return;S.pr={};for(const[k,,f]of PRDEF){let best={v:0,d:null};Object.keys(S.log).concat(Object.keys(S.ign||{})).filter(d=>d<cur).forEach(d=>{const v=f(d);if(v>best.v)best={v,d}});S.pr[k]=best}}
+function syncPR(){if(!S.profile)return;initPR();for(const[k,name,f,u]of PRDEF){const t=f(cur),R=S.pr[k];if(t>R.v){const fresh=R.d!==cur&&R.v>0;S.pr[k]={v:t,d:cur};
+  if(fresh&&!(S.prTold||(S.prTold={}))[cur+k]){S.prTold[cur+k]=1;setTimeout(()=>achPop('自己ベスト更新！',name+'：'+prFmt(k,t)+(u||''),'NEW RECORD'),900)}}}}
+/* -- 宣言（長押し） -- */
+const vision=()=>(S.profile&&S.profile.vision)||'昨日の自分を、今日の自分で超えていく人';
+let dclT=null;
+function holdStart(btn){if(S.decl&&S.decl[cur])return;btn.classList.add('holding');const t0=Date.now();
+  dclT=setInterval(()=>{const p=Math.min(1,(Date.now()-t0)/1600);btn.style.setProperty('--p',p);if(p>=1){clearInterval(dclT);dclT=null;declare()}},40)}
+function holdEnd(btn){if(dclT){clearInterval(dclT);dclT=null;btn.classList.remove('holding');btn.style.setProperty('--p',0)}}
+function declare(){if(S.decl&&S.decl[cur])return;S.decl=S.decl||{};S.decl[cur]=true;const day=S.log[cur]||(S.log[cur]={});day._dl={xp:5,name:'朝の宣言'};afterChange();save();
+  const fx=document.createElement('div');fx.className='igboom xdecl';fx.innerHTML=`<span>私は</span><b>${esc(vision())}</b><span>になる。今日も、その一票を。</span>`;document.body.appendChild(fx);setTimeout(()=>fx.remove(),2400);
+  setTimeout(()=>{if($('brief')&&!$('brief').hidden&&typeof drawIgnite==='function'&&igMode)drawIgnite()},900)}
+/* -- 目標 -- */
+function goalFocus(){const gs=(S.goals||[]).filter(g=>!g.done&&!(g.ms&&g.ms.length&&g.ms.every(m=>m.done)));if(!gs.length)return null;
+  const g=gs.slice().sort((a,b)=>(a.deadline||'9999')<(b.deadline||'9999')?-1:1)[0],ms=g.ms||[],dn=ms.filter(m=>m.done).length,nx=ms.find(m=>!m.done);
+  const left=g.deadline?Math.ceil((new Date(g.deadline)-new Date(cur))/864e5):null;return{g,dn,tot:ms.length,nx,left}}
+/* -- 証シーン -- */
+function proofScene(nextBtn){const y=addDays(cur,-1),yd=S.log[y],yx=yd?dayXP(y):0,yg=yd?dayGrade(y):null,bt=S.baton&&S.baton[cur],G=goalFocus(),D=S.decl&&S.decl[cur];
+  const facts=[['活動した日',activeDays()+'日'],['最長連続',bestStreak()+'日'],['倒したボス',bossesDown()+'体'],['資格の合格',certCount()+'個'],['読み切った本',booksDone()+'冊'],['レベル','Lv.'+levelOf(totalXP())]];
+  return `<div class="igs igs-p"><div class="ignk">PROOF OF LIFE</div>
+   <div class="xproof"><small>あなたが自分との約束を守った回数</small><b class="xcount" data-to="${promiseCount()}">${promiseCount()}</b><span>${promiseCount()?'この数字は、誰にも奪えない。今日もまた増やせる。':'今日、最初の1回を刻もう。'}</span></div>
+   ${yd?`<div class="xyest"><small>昨日のあなた</small><b>${yg?yg.dn+'/'+yg.tot+' クエスト・+'+yx+' XP・評価 '+yg.g:'+'+yx+' XP'}</b></div>`:`<div class="xyest"><small>昨日のあなた</small><b>休んだ日もあった。それでも今日、ここに戻ってきた。</b></div>`}
+   ${bt?`<div class="xbaton"><small>昨日のあなたから託された一手</small><b>「${esc(bt)}」</b><span>まずはこれから。昨日の自分を裏切らない。</span></div>`:''}
+   <div class="xfacts">${facts.map(([k,v])=>`<div><small>${k}</small><b>${v}</b></div>`).join('')}</div>
+   ${G?`<div class="xgoal"><small>いま向かっている目標${G.left!=null?`・あと${G.left}日`:''}</small><b>${esc(G.g.title)}</b>${G.g.why?`<span>なぜ：${esc(G.g.why)}</span>`:''}${G.tot?`<div class="xgbar"><i style="width:${G.dn/G.tot*100}%"></i></div><span>${G.dn}/${G.tot}${G.nx?' ・ 次の一歩：'+esc(G.nx.t):''}</span>`:''}</div>`:''}
+   <div class="xvis"><small>なりたい自分</small><b>${esc(vision())}</b></div>
+   ${D?`<div class="xdeclared">宣言済み。今日のすべての行動が、なりたい自分への一票になる。</div>${nextBtn('宝箱へ')}`
+     :`<button type="button" class="xhold" id="ig-hold"><span>長押しで宣言する</span><small>「私は、なりたい自分になる」 +5 XP</small></button><button class="ignext ghost" id="ig-next" type="button">宣言せずに進む ▶</button>`}
+  </div>`}
+/* -- 夜のバトン -- */
+function batonHTML(pf){pf=pf||'';const t=addDays(cur,1),v=(S.baton&&S.baton[t])||'';
+  return `<div class="xbt"><small>明日の自分へのバトン</small><b>明日、最初にやる一手は？</b><input id="${pf}batonin" maxlength="40" placeholder="例：起きたら水を1杯飲んで、ストレッチ5分" value="${esc(v)}"><button type="button" class="xspbtn" id="${pf}batonsave">託す</button>${v?'<span class="xok">託した。明日の朝、最初に表示されます。</span>':''}</div>`}
+function saveBaton(pf){const i=$((pf||'')+'batonin');if(!i)return;const v=i.value.trim();S.baton=S.baton||{};const t=addDays(cur,1);if(v)S.baton[t]=v;else delete S.baton[t];save();toast(v?'明日の自分にバトンを託した':'バトンを取り消した')}
+
 /* テーマ：ブレイズ（黒×オレンジ・v9.6の標準）／ネオン（従来） */
 const BLAZE=[['#8b5cf6','#f97316'],['#6d28d9','#c2410c'],['#a78bfa','#fdba74'],['#22d3ee','#fb923c'],['#05070d','#0a0807'],['#0a0f1c','#100c0a'],['#0c1222','#14100d'],['#0d1322','#17120e'],['#101a30','#1d1712'],['#1b2540','#2c221b'],['#0e1a36','#2a1607'],['#15245099','#3a1d0899'],['#2a1460aa','#4a1f05aa'],['#8590b0','#a8998c'],['#eef2ff','#f5efe6'],['#c7cfe6','#d9cfc3'],['#0b1020','#120d0a'],['#0b1424','#140f0b'],['#170b24','#1f1008'],['139,92,246','249,115,22'],['#2e3b66','#4a3526'],['#4c1d95','#7c2d12'],['#9b6dff','#fb923c'],['#5b4bd1','#ea580c'],['#a5f3fc','#fed7aa'],['#3b1a7a','#5c2410'],['#0e7490','#9a3412'],['#c4b5fd','#fdba74'],['#4a5578','#6b5a4c'],['#4f46e5','#ea580c'],['#4c3db3','#c2410c'],['#6d5cf0','#f97316'],['#3b4e8f','#7a5238'],['34,211,238','251,146,60']];
 const warmHex=h=>{const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
